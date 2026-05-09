@@ -1,6 +1,15 @@
+# Dependencies
 node_modules/
-booking.db
-booking.db-shm
-booking.db-wal
+
+# Database files (data is persistent, don't track in git)
+data/booking.db
+data/booking.db-shm
+data/booking.db-wal
+data/backups/
+
+# Keep the data directory itself
+!data/.gitkeep
+
+# Environment
 .env
 *.log
