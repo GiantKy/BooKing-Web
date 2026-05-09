@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - LuxStay</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar" id="sidebar">
+      <a href="/" class="sidebar-brand">LuxStay</a>
+      <div class="sidebar-role">🔐 Admin Dashboard</div>
+      <nav class="sidebar-nav">
+        <a href="#" class="active" onclick="showPanel('overview',this)">📊 Tổng quan</a>
+        <a href="#" onclick="showPanel('bookings',this)">📋 Quản lý Booking</a>
+        <a href="#" onclick="showPanel('rooms',this)">🏨 Phòng</a>
+        <a href="#" onclick="showPanel('upload',this)">📤 Thêm Sản Phẩm</a>
+        <a href="#" onclick="showPanel('users',this)">👥 Người dùng</a>
+        <a href="#" onclick="showPanel('chat',this)">💬 Chat</a>
+      </nav>
+      <div class="sidebar-user">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--accent),#e84393)" id="adminAvatar">A</div>
+        <div class="user-info">
+          <div class="user-name" id="adminName">Admin</div>
+          <div class="user-email" id="adminEmail">admin</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="main-header">
+        <h1>📊 Admin Dashboard</h1>
+        <button class="btn btn-danger btn-sm" onclick="logout()">🚪 Đăng xuất</button>
+      </div>
+
+      <!-- Overview -->
+      <div class="panel active" id="panelOverview">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon" style="background:rgba(108,92,231,0.1);color:var(--primary)">🏨</div><div class="stat-value" id="statRooms">0</div><div class="stat-label">Tổng phòng</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:rgba(0,206,201,0.1);color:var(--secondary)">📋</div><div class="stat-value" id="statBookings">0</div><div class="stat-label">Tổng booking</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:rgba(225,112,85,0.1);color:var(--gold)">👥</div><div class="stat-value" id="statUsers">0</div><div class="stat-label">Người dùng</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:rgba(253,121,168,0.1);color:var(--accent)">💰</div><div class="stat-value" id="statRevenue">0</div><div class="stat-label">Doanh thu</div></div>
+        </div>
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+          <div class="stat-card"><div class="stat-value" style="color:var(--gold)" id="statPending">0</div><div class="stat-label">⏳ Chờ xác nhận</div></div>
+          <div class="stat-card"><div class="stat-value" style="color:#00a896" id="statConfirmed">0</div><div class="stat-label">✅ Đã xác nhận</div></div>
+          <div class="stat-card"><div class="stat-value" style="color:#d63031" id="statCancelled">0</div><div class="stat-label">❌ Đã hủy</div></div>
+          <div class="stat-card"><div class="stat-value" style="color:var(--primary)" id="statBookedRooms">0</div><div class="stat-label">🛏️ Phòng đã đặt</div></div>
+        </div>
+      </div>
+
+      <!-- Bookings -->
+      <div class="panel" id="panelBookings">
+        <div class="table-container">
+          <div class="table-header"><h3>📋 Tất cả Booking</h3></div>
+          <table class="data-table">
+            <thead><tr><th>ID</th><th>Khách</th><th>Phòng</th><th>Nhận</th><th>Trả</th><th>Tổng</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
+            <tbody id="adminBookingsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Rooms -->
+      <div class="panel" id="panelRooms">
+        <div class="table-container">
+          <div class="table-header"><h3>🏨 Danh sách phòng</h3></div>
+          <table class="data-table">
+            <thead><tr><th>ID</th><th>Tên phòng</th><th>Loại</th><th>Giá/đêm</th><th>Sức chứa</th><th>Trạng thái</th><th>Xóa</th></tr></thead>
+            <tbody id="adminRoomsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Upload Product -->
+      <div class="panel" id="panelUpload">
+        <div class="table-container" style="padding:32px">
+          <h3 style="margin-bottom:24px">📤 Thêm Phòng / Sản Phẩm Mới</h3>
+          <div id="uploadAlert" class="alert alert-error"></div>
+          <div id="uploadSuccess" class="alert alert-success"></div>
+          <form class="upload-form" id="uploadForm" onsubmit="handleUploadRoom(event)">
+            <div class="form-group">
+              <label>Tên phòng *</label>
+              <input type="text" id="upName" placeholder="VD: Phòng Deluxe Ocean View" required>
+            </div>
+            <div class="form-group">
+              <label>Loại phòng *</label>
+              <select id="upType" required>
+                <option value="">-- Chọn loại --</option>
+                <option value="Standard">Standard</option>
+                <option value="Superior">Superior</option>
+                <option value="Deluxe">Deluxe</option>
+                <option value="Suite">Suite</option>
+                <option value="Presidential">Presidential</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Giá / đêm (VNĐ) *</label>
+              <input type="number" id="upPrice" placeholder="VD: 2500000" required min="0">
+            </div>
+            <div class="form-group">
+              <label>Sức chứa (số khách) *</label>
+              <input type="number" id="upCapacity" placeholder="VD: 2" required min="1" max="10">
+            </div>
+            <div class="form-group">
+              <label>Mô tả</label>
+              <textarea id="upDesc" placeholder="Mô tả chi tiết về phòng..."></textarea>
+            </div>
+            <div class="form-group">
+              <label>URL Hình ảnh</label>
+              <input type="url" id="upImage" placeholder="https://example.com/image.jpg">
+            </div>
+            <div class="form-group">
+              <label>Tiện nghi (cách nhau bởi dấu phẩy)</label>
+              <input type="text" id="upAmenities" placeholder="WiFi, Điều hòa, Minibar, TV">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%">📤 Thêm Sản Phẩm</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Users Panel -->
+      <div class="panel" id="panelUsers">
+        <div class="table-container">
+          <div class="table-header"><h3>👥 Quản lý Người dùng</h3></div>
+          <table class="data-table">
+            <thead><tr><th>ID</th><th>Tên</th><th>Username</th><th>SĐT</th><th>Số đơn đặt</th><th>Ngày tạo</th></tr></thead>
+            <tbody id="adminUsersBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Chat Panel -->
+      <div class="panel" id="panelChat">
+        <div class="chat-container">
+          <div class="chat-sidebar">
+            <div class="chat-sidebar-header">💬 Cuộc trò chuyện</div>
+            <div class="chat-user-list" id="chatUserList">
+              <div class="chat-empty" style="padding:40px 20px;font-size:0.85rem">Chưa có cuộc trò chuyện nào</div>
+            </div>
+          </div>
+          <div class="chat-main">
+            <div class="chat-main-header" id="chatMainHeader">Chọn một cuộc trò chuyện</div>
+            <div class="chat-messages" id="chatMessages">
+              <div class="chat-empty">Chọn người dùng từ danh sách bên trái để bắt đầu chat</div>
+            </div>
+            <div class="chat-input-area" id="chatInputArea" style="display:none">
+              <input type="text" id="adminChatInput" placeholder="Nhập tin nhắn..." onkeydown="if(event.key==='Enter')sendAdminChat()">
+              <button onclick="sendAdminChat()">➤</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="/js/app.js"></script>
+  <script>
+    (async function init() {
+      const user = await checkAuth();
+      if (!user || user.role !== 'admin') { window.location.href = '/admin/login'; return; }
+      document.getElementById('adminName').textContent = user.fullName;
+      document.getElementById('adminEmail').textContent = user.username || user.email || '';
+      document.getElementById('adminAvatar').textContent = user.fullName.charAt(0).toUpperCase();
+      loadAdminDashboard();
+    })();
+
+    async function loadAdminDashboard() {
+      try {
+        const res = await fetch('/api/admin/stats');
+        const data = await res.json();
+        if (data.success) {
+          const s = data.stats;
+          document.getElementById('statRooms').textContent = s.totalRooms;
+          document.getElementById('statBookings').textContent = s.totalBookings;
+          document.getElementById('statUsers').textContent = s.totalUsers;
+          document.getElementById('statRevenue').textContent = formatPrice(s.totalRevenue);
+          document.getElementById('statPending').textContent = s.pendingBookings;
+          document.getElementById('statConfirmed').textContent = s.confirmedBookings;
+          document.getElementById('statCancelled').textContent = s.cancelledBookings;
+          document.getElementById('statBookedRooms').textContent = s.bookedRooms || 0;
+        }
+      } catch (e) {}
+      loadAdminBookings();
+      loadAdminRooms();
+      loadAdminUsers();
+    }
+
+    async function loadAdminBookings() {
+      try {
+        const res = await fetch('/api/bookings');
+        const data = await res.json();
+        if (data.success) {
+          const tbody = document.getElementById('adminBookingsBody');
+          if (data.bookings.length === 0) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:40px">Chưa có booking</td></tr>'; return; }
+          tbody.innerHTML = data.bookings.map(b => `<tr>
+            <td>#${b.id}</td><td>${b.userName}</td><td>${b.roomName}</td><td>${b.checkIn}</td><td>${b.checkOut}</td>
+            <td style="color:var(--gold);font-weight:600">${formatPrice(b.totalPrice)}</td>
+            <td><span class="badge badge-${b.status}">${statusText(b.status)}</span></td>
+            <td><div style="display:flex;gap:6px;flex-wrap:wrap">
+              ${b.status === 'pending' ? `<button class="btn btn-success btn-sm" onclick="updateBookingStatus(${b.id},'confirmed')">✅</button>` : ''}
+              ${b.status !== 'cancelled' ? `<button class="btn btn-danger btn-sm" onclick="updateBookingStatus(${b.id},'cancelled')">❌</button>` : ''}
+              <button class="btn btn-secondary btn-sm" onclick="deleteBooking(${b.id})">🗑️</button>
+            </div></td></tr>`).join('');
+        }
+      } catch (e) {}
+    }
+
+    async function loadAdminRooms() {
+      try {
+        const res = await fetch('/api/rooms');
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('adminRoomsBody').innerHTML = data.rooms.map(r => `<tr>
+            <td>#${r.id}</td><td>${r.name}</td>
+            <td><span class="badge" style="background:rgba(108,92,231,0.1);color:var(--primary)">${r.type}</span></td>
+            <td style="color:var(--gold);font-weight:600">${formatPrice(r.price)}</td>
+            <td>${r.capacity} khách</td>
+            <td><span class="badge badge-confirmed">${r.available ? 'Còn phòng' : 'Hết phòng'}</span></td>
+            <td><button class="btn btn-danger btn-sm" onclick="deleteRoom(${r.id})">🗑️</button></td>
+          </tr>`).join('');
+        }
+      } catch (e) {}
+    }
+
+    async function updateBookingStatus(id, status) {
+      try {
+        const res = await fetch(`/api/bookings/${id}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
+        const data = await res.json();
+        if (data.success) { showToast(data.message, 'success'); loadAdminDashboard(); } else { showToast(data.message, 'error'); }
+      } catch (e) { showToast('Lỗi!', 'error'); }
+    }
+
+    async function deleteBooking(id) {
+      if (!confirm('Xóa booking này?')) return;
+      try {
+        const res = await fetch(`/api/bookings/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) { showToast(data.message, 'success'); loadAdminDashboard(); } else { showToast(data.message, 'error'); }
+      } catch (e) { showToast('Lỗi!', 'error'); }
+    }
+
+    async function deleteRoom(id) {
+      if (!confirm('Xóa phòng này?')) return;
+      try {
+        const res = await fetch(`/api/rooms/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) { showToast(data.message, 'success'); loadAdminDashboard(); } else { showToast(data.message, 'error'); }
+      } catch (e) { showToast('Lỗi!', 'error'); }
+    }
+
+    async function loadAdminUsers() {
+      try {
+        const res = await fetch('/api/admin/users');
+        const data = await res.json();
+        if (data.success) {
+          const tbody = document.getElementById('adminUsersBody');
+          if (data.users.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:40px">Chưa có người dùng</td></tr>'; return; }
+          tbody.innerHTML = data.users.map(u => `<tr>
+            <td>#${u.id}</td><td>${u.fullName}</td><td>${u.username}</td>
+            <td>${u.phone || '-'}</td>
+            <td><span class="badge badge-confirmed">${u.bookingCount} đơn</span></td>
+            <td>${u.createdAt ? new Date(u.createdAt).toLocaleDateString('vi-VN') : '-'}</td>
+          </tr>`).join('');
+        }
+      } catch(e) {}
+    }
+
+    async function handleUploadRoom(e) {
+      e.preventDefault();
+      const el = (id) => document.getElementById(id);
+      el('uploadAlert').style.display = 'none';
+      el('uploadSuccess').style.display = 'none';
+
+      const body = {
+        name: el('upName').value,
+        type: el('upType').value,
+        price: parseInt(el('upPrice').value),
+        capacity: parseInt(el('upCapacity').value),
+        description: el('upDesc').value,
+        image: el('upImage').value || 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800',
+        amenities: el('upAmenities').value.split(',').map(s => s.trim()).filter(Boolean)
+      };
+
+      try {
+        const res = await fetch('/api/rooms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const data = await res.json();
+        if (data.success) {
+          el('uploadSuccess').textContent = data.message; el('uploadSuccess').style.display = 'block';
+          el('uploadForm').reset();
+          showToast(data.message, 'success');
+          loadAdminRooms();
+          // refresh stats
+          loadAdminDashboard();
+        } else {
+          el('uploadAlert').textContent = data.message; el('uploadAlert').style.display = 'block';
+        }
+      } catch (err) {
+        el('uploadAlert').textContent = 'Lỗi kết nối server!'; el('uploadAlert').style.display = 'block';
+      }
+    }
+
+    function showPanel(name, el) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+      document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+      if (el) el.classList.add('active');
+      if (name === 'chat') loadChatConversations();
+    }
+
+    // ============ CHAT ============
+    let currentChatUserId = null;
+    let chatPollInterval = null;
+
+    async function loadChatConversations() {
+      try {
+        const res = await fetch('/api/chat/conversations');
+        const data = await res.json();
+        if (data.success) {
+          const list = document.getElementById('chatUserList');
+          if (data.conversations.length === 0) {
+            list.innerHTML = '<div class="chat-empty" style="padding:40px 20px;font-size:0.85rem">Chưa có cuộc trò chuyện nào</div>';
+            return;
+          }
+          list.innerHTML = data.conversations.map(c => `
+            <div class="chat-user-item ${currentChatUserId === c.userId ? 'active' : ''}" onclick="openChat(${c.userId}, '${c.userName.replace(/'/g,"\\'")}')">
+              <div class="chat-avatar">${c.userName.charAt(0).toUpperCase()}</div>
+              <div class="chat-user-info">
+                <div class="chat-user-name">${c.userName}</div>
+                <div class="chat-last-msg">${c.lastMessage}</div>
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch(e) {}
+    }
+
+    async function openChat(userId, userName) {
+      currentChatUserId = userId;
+      document.getElementById('chatMainHeader').textContent = '💬 ' + userName;
+      document.getElementById('chatInputArea').style.display = 'flex';
+      document.getElementById('adminChatInput').focus();
+      loadChatMessages(userId);
+      // Highlight active
+      document.querySelectorAll('.chat-user-item').forEach(el => el.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      // Auto-refresh
+      if (chatPollInterval) clearInterval(chatPollInterval);
+      chatPollInterval = setInterval(() => loadChatMessages(userId), 3000);
+    }
+
+    async function loadChatMessages(userId) {
+      try {
+        const res = await fetch('/api/chat/messages/' + userId);
+        const data = await res.json();
+        if (data.success) {
+          const container = document.getElementById('chatMessages');
+          if (data.messages.length === 0) { container.innerHTML = '<div class="chat-empty">Chưa có tin nhắn</div>'; return; }
+          container.innerHTML = data.messages.map(m => `
+            <div class="chat-msg ${m.fromRole === 'admin' ? 'from-admin' : 'from-user'}">
+              <div>${m.message}</div>
+              <div class="msg-time">${new Date(m.timestamp).toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'})}</div>
+            </div>
+          `).join('');
+          container.scrollTop = container.scrollHeight;
+        }
+      } catch(e) {}
+    }
+
+    async function sendAdminChat() {
+      if (!currentChatUserId) return;
+      const input = document.getElementById('adminChatInput');
+      const message = input.value.trim();
+      if (!message) return;
+      input.value = '';
+      try {
+        await fetch('/api/chat/send', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ message, toUserId: currentChatUserId })
+        });
+        loadChatMessages(currentChatUserId);
+        loadChatConversations();
+      } catch(e) {}
+    }
+  </script>
+</body>
+</html>

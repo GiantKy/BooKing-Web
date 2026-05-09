@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LuxStay - Đặt phòng khách sạn cao cấp trực tuyến.">
+  <title>LuxStay - Đặt Phòng Khách Sạn Cao Cấp</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="/" class="navbar-brand">Lux<span>Stay</span></a>
+      <div class="nav-links" id="navLinks">
+        <a href="#rooms">Phòng</a>
+        <a href="#features">Dịch vụ</a>
+        <a href="#contact">Liên hệ</a>
+      </div>
+      <div class="nav-auth" id="navAuth">
+        <a href="/login" class="btn btn-primary btn-sm">Đăng nhập</a>
+      </div>
+      <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">☰</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge">✨ Ưu đãi mùa hè - Giảm đến 40%</div>
+        <h1>Trải Nghiệm Nghỉ Dưỡng <span class="gradient-text">Đẳng Cấp 5 Sao</span></h1>
+        <p>Khám phá những căn phòng sang trọng bậc nhất, dịch vụ hoàn hảo và không gian nghỉ dưỡng tuyệt vời.</p>
+        <div class="hero-actions">
+          <a href="#rooms" class="btn btn-primary">🏨 Khám Phá Ngay</a>
+          <a href="/login" class="btn btn-secondary">👤 Đặt Phòng</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEARCH BAR -->
+  <section class="search-bar-section">
+    <div class="container">
+      <div class="search-bar-wrap">
+        <input type="text" id="searchInput" placeholder="Tìm kiếm phòng theo tên, loại phòng..."
+          oninput="filterRooms()">
+        <button onclick="filterRooms()">🔍</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILTER ROW -->
+  <section style="padding:24px 0 0">
+    <div class="container">
+      <div class="search-box">
+        <div class="search-group">
+          <label>Loại phòng</label>
+          <select id="searchType" onchange="filterRooms()">
+            <option value="">Tất cả</option>
+            <option value="Standard">Standard</option>
+            <option value="Superior">Superior</option>
+            <option value="Deluxe">Deluxe</option>
+            <option value="Suite">Suite</option>
+            <option value="Presidential">Presidential</option>
+          </select>
+        </div>
+        <div class="search-group">
+          <label>Sắp xếp theo giá</label>
+          <select id="sortPrice" onchange="filterRooms()">
+            <option value="">Mặc định</option>
+            <option value="asc">Thấp → Cao</option>
+            <option value="desc">Cao → Thấp</option>
+          </select>
+        </div>
+        <button class="btn btn-secondary" onclick="resetFilters()" id="resetBtn">↻ Đặt lại</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="rooms">
+    <div class="container">
+      <div class="section-header">
+        <h2>Phòng Nghỉ <span class="gradient-text">Cao Cấp</span></h2>
+        <p>Lựa chọn không gian nghỉ dưỡng hoàn hảo cho chuyến đi của bạn</p>
+      </div>
+      <div class="rooms-grid" id="roomsGrid"></div>
+    </div>
+  </section>
+
+  <section class="section" id="features" style="background: var(--bg-2);">
+    <div class="container">
+      <div class="section-header">
+        <h2>Tại Sao Chọn <span class="gradient-text">LuxStay</span>?</h2>
+        <p>Dịch vụ đẳng cấp quốc tế, mang đến trải nghiệm tuyệt vời nhất</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card" onclick="openServiceModal('quality')" style="cursor:pointer">
+          <div class="feature-icon">🏆</div>
+          <h3>Chất Lượng 5 Sao</h3>
+          <p>Mọi phòng đều được trang bị nội thất cao cấp và tiện nghi hiện đại nhất.</p>
+        </div>
+        <div class="feature-card" onclick="openServiceModal('security')" style="cursor:pointer">
+          <div class="feature-icon">🔒</div>
+          <h3>Đặt Phòng An Toàn</h3>
+          <p>Hệ thống bảo mật tiên tiến, đảm bảo thông tin luôn được bảo vệ.</p>
+        </div>
+        <div class="feature-card" onclick="openServiceModal('price')" style="cursor:pointer">
+          <div class="feature-icon">💎</div>
+          <h3>Giá Tốt Nhất</h3>
+          <p>Cam kết giá tốt nhất thị trường, kèm nhiều ưu đãi hấp dẫn.</p>
+        </div>
+        <div class="feature-card" onclick="openServiceModal('food')" style="cursor:pointer">
+          <div class="feature-icon">🍽️</div>
+          <h3>Ẩm Thực Đỉnh Cao</h3>
+          <p>Nhà hàng phục vụ buffet sáng miễn phí và thực đơn đa dạng.</p>
+        </div>
+        <div class="feature-card" onclick="openServiceModal('amenities')" style="cursor:pointer">
+          <div class="feature-icon">🏊</div>
+          <h3>Tiện Ích Đa Dạng</h3>
+          <p>Hồ bơi vô cực, spa, phòng gym và nhiều tiện ích giải trí.</p>
+        </div>
+        <div class="feature-card" onclick="openServiceModal('contact')" style="cursor:pointer">
+          <div class="feature-icon">📞</div>
+          <h3>Hỗ Trợ 24/7</h3>
+          <p>Đội ngũ nhân viên chuyên nghiệp, sẵn sàng phục vụ mọi lúc.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer" id="contact">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">LuxStay</div>
+          <p class="footer-desc">Hệ thống đặt phòng khách sạn cao cấp hàng đầu Việt Nam.</p>
+        </div>
+        <div>
+          <h4>Liên Kết</h4>
+          <ul>
+            <li><a href="#rooms">Phòng nghỉ</a></li>
+            <li><a href="#features">Dịch vụ</a></li>
+            <li><a href="#" onclick="openServiceModal('price')">Khuyến mãi</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Hỗ Trợ</h4>
+          <ul>
+            <li><a href="#" onclick="openServiceModal('faq')">FAQ</a></li>
+            <li><a href="#" onclick="openServiceModal('policy')">Chính sách</a></li>
+            <li><a href="#" onclick="openServiceModal('terms')">Điều khoản</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Liên Hệ</h4>
+          <ul>
+            <li><a href="#" onclick="openServiceModal('contact')">📍 123 Nguyễn Huệ, Q.1, TP.HCM</a></li>
+            <li><a href="tel:1900xxxx">📞 1900 xxxx</a></li>
+            <li><a href="mailto:info@luxstay.vn">✉️ info@luxstay.vn</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 LuxStay. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- BOOKING MODAL -->
+  <div class="modal-overlay" id="bookingModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>📋 Đặt Phòng</h2><button class="modal-close" onclick="closeBookingModal()">&times;</button>
+      </div>
+      <div id="bookingAlert" class="alert alert-error"></div>
+      <form id="bookingForm" onsubmit="submitBooking(event)">
+        <input type="hidden" id="bookRoomId">
+        <div class="form-group"><label>Phòng</label><input type="text" id="bookRoomName" readonly style="opacity:0.7">
+        </div>
+        <div class="form-group"><label>Ngày nhận phòng</label><input type="date" id="bookCheckIn" required></div>
+        <div class="form-group"><label>Ngày trả phòng</label><input type="date" id="bookCheckOut" required></div>
+        <div class="form-group"><label>Số khách</label><select id="bookGuests" required>
+            <option value="1">1</option>
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select></div>
+        <div class="form-group"><label>Tổng tiền (ước tính)</label><input type="text" id="bookTotal" readonly
+            style="opacity:0.7;color:var(--gold);font-weight:700;"></div>
+        <button type="submit" class="btn btn-primary">✅ Xác Nhận Đặt Phòng</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- SERVICE INFO MODAL -->
+  <div class="modal-overlay" id="serviceModal">
+    <div class="modal" style="max-width:600px">
+      <div class="modal-header">
+        <h2 id="serviceModalTitle">Thông tin</h2><button class="modal-close"
+          onclick="closeServiceModal()">&times;</button>
+      </div>
+      <div id="serviceModalBody" style="line-height:1.8"></div>
+    </div>
+  </div>
+
+  <!-- CHAT WIDGET -->
+  <button class="chat-widget-btn" id="chatWidgetBtn" style="display:none" onclick="toggleChatWidget()">💬</button>
+  <div class="chat-widget-panel" id="chatWidgetPanel">
+    <div class="chat-main-header">
+      <span>💬 Chat với Admin</span>
+      <button class="close-chat" onclick="toggleChatWidget()">&times;</button>
+    </div>
+    <div class="chat-messages" id="userChatMessages">
+      <div class="chat-empty">Gửi tin nhắn để được hỗ trợ!</div>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="userChatInput" placeholder="Nhập tin nhắn..." onkeydown="if(event.key==='Enter')sendUserChat()">
+      <button onclick="sendUserChat()">➤</button>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="/js/app.js"></script>
+  <script>
+    window.addEventListener('scroll', () => { document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50); });
+    loadRooms();
+
+    function filterRooms() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const type = document.getElementById('searchType').value;
+      const sort = document.getElementById('sortPrice').value;
+      let filtered = allRooms.filter(r => {
+        const matchText = r.name.toLowerCase().includes(query) || r.type.toLowerCase().includes(query) || r.description.toLowerCase().includes(query);
+        const matchType = !type || r.type === type;
+        return matchText && matchType;
+      });
+      if (sort === 'asc') filtered.sort((a, b) => a.price - b.price);
+      if (sort === 'desc') filtered.sort((a, b) => b.price - a.price);
+      renderRooms(filtered);
+    }
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('searchType').value = '';
+      document.getElementById('sortPrice').value = '';
+      renderRooms(allRooms);
+    }
+
+    // ============ SERVICE MODALS ============
+    const serviceData = {
+      quality: {
+        title: '🏆 Chất Lượng 5 Sao', body: `
+        <p><strong>Tiêu chuẩn quốc tế</strong></p>
+        <p>✅ Phòng nghỉ được thiết kế bởi kiến trúc sư hàng đầu</p>
+        <p>✅ Nội thất nhập khẩu từ Ý, Pháp, Nhật Bản</p>
+        <p>✅ Ga trải giường 100% cotton Ai Cập 800TC</p>
+        <p>✅ Hệ thống cách âm cao cấp</p>
+        <p>✅ Minibar với đồ uống premium miễn phí</p>
+        <p>✅ View biển / thành phố tùy chọn</p>
+        <p style="margin-top:16px;color:var(--text-muted)">Mỗi phòng đều trải qua quy trình kiểm tra chất lượng nghiêm ngặt trước khi đón khách.</p>
+      `},
+      security: {
+        title: '🔒 Đặt Phòng An Toàn', body: `
+        <p><strong>Bảo mật thông tin</strong></p>
+        <p>🔐 Mã hóa SSL/TLS cho mọi giao dịch</p>
+        <p>🔐 Không lưu trữ thông tin thẻ ngân hàng</p>
+        <p>🔐 Xác thực 2 lớp cho tài khoản</p>
+        <p>🔐 Camera an ninh 24/7 toàn khu vực</p>
+        <p>🔐 Hệ thống khóa từ thông minh</p>
+        <p>🔐 Đội ngũ bảo vệ chuyên nghiệp</p>
+        <p style="margin-top:16px;color:var(--text-muted)">Chúng tôi cam kết bảo vệ quyền riêng tư và an toàn của quý khách.</p>
+      `},
+      price: {
+        title: '💎 Giá Tốt Nhất & Khuyến Mãi', body: `
+        <p><strong>Cam kết giá tốt nhất</strong></p>
+        <p>🎁 <strong>Flash Sale:</strong> Giảm 40% mỗi thứ 6 hàng tuần</p>
+        <p>🎁 <strong>Early Bird:</strong> Đặt trước 30 ngày - Giảm 25%</p>
+        <p>🎁 <strong>Long Stay:</strong> Ở từ 5 đêm - Giảm 20%</p>
+        <p>🎁 <strong>Member:</strong> Thành viên tích điểm đổi đêm miễn phí</p>
+        <p>🎁 <strong>Combo:</strong> Phòng + Spa + Dinner từ 3.500.000₫</p>
+        <p style="margin-top:16px"><strong>Hotline đặt phòng:</strong> <a href="tel:1900xxxx" style="color:var(--primary)">1900 xxxx</a></p>
+      `},
+      food: {
+        title: '🍽️ Ẩm Thực Đỉnh Cao', body: `
+        <p><strong>Nhà hàng & Bar</strong></p>
+        <p>🍳 <strong>Buffet sáng:</strong> 6:00 - 10:00 (miễn phí)</p>
+        <p>🥗 <strong>Lunch Set:</strong> 11:30 - 14:00 (từ 350.000₫)</p>
+        <p>🥩 <strong>Fine Dining:</strong> 18:00 - 22:00 (thực đơn Á-Âu)</p>
+        <p>🍸 <strong>Sky Bar:</strong> 17:00 - 01:00 (cocktail & live music)</p>
+        <p>🍰 <strong>Room Service:</strong> Phục vụ 24/7</p>
+        <p style="margin-top:16px;color:var(--text-muted)">Đầu bếp 5 sao từ Pháp và Nhật Bản. Thực đơn thay đổi theo mùa.</p>
+      `},
+      amenities: {
+        title: '🏊 Tiện Ích Đa Dạng', body: `
+        <p><strong>Tiện ích cao cấp</strong></p>
+        <p>🏊 <strong>Hồ bơi vô cực:</strong> Tầng 25, view panorama (6:00-21:00)</p>
+        <p>💆 <strong>LuxSpa:</strong> Massage, xông hơi, chăm sóc da (9:00-22:00)</p>
+        <p>🏋️ <strong>Fitness Center:</strong> Trang thiết bị Technogym (24/7)</p>
+        <p>👶 <strong>Kids Club:</strong> Khu vui chơi trẻ em có giám sát</p>
+        <p>🚗 <strong>Bãi đỗ xe:</strong> Miễn phí cho khách lưu trú</p>
+        <p>🧺 <strong>Giặt ủi:</strong> Dịch vụ giặt nhanh trong ngày</p>
+        <p>🚌 <strong>Shuttle Bus:</strong> Đưa đón sân bay miễn phí</p>
+      `},
+      contact: {
+        title: '📞 Liên Hệ Với Chúng Tôi', body: `
+        <p><strong>Thông tin liên hệ</strong></p>
+        <p>📍 <strong>Địa chỉ:</strong> 123 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh</p>
+        <p>📞 <strong>Hotline:</strong> <a href="tel:1900xxxx" style="color:var(--primary);font-weight:600">1900 xxxx</a> (24/7)</p>
+        <p>📱 <strong>Zalo:</strong> <a href="https://zalo.me/0901234567" target="_blank" style="color:var(--primary);font-weight:600">0901 234 567</a></p>
+        <p>✉️ <strong>Email:</strong> <a href="mailto:info@luxstay.vn" style="color:var(--primary);font-weight:600">info@luxstay.vn</a></p>
+        <p>📘 <strong>Facebook:</strong> <a href="https://facebook.com/luxstay" target="_blank" style="color:var(--primary);font-weight:600">facebook.com/luxstay</a></p>
+        <p>📸 <strong>Instagram:</strong> <a href="https://instagram.com/luxstay" target="_blank" style="color:var(--primary);font-weight:600">@luxstay</a></p>
+        <p>🌐 <strong>Website:</strong> <a href="/" style="color:var(--primary);font-weight:600">www.luxstay.vn</a></p>
+        <p style="margin-top:16px;color:var(--text-muted)">Giờ làm việc: 24/7 | Check-in: 14:00 | Check-out: 12:00</p>
+      `},
+      faq: {
+        title: '❓ Câu Hỏi Thường Gặp', body: `
+        <p><strong>Q: Làm sao để đặt phòng?</strong></p>
+        <p style="color:var(--text-muted)">A: Đăng ký tài khoản → Chọn phòng → Chọn ngày → Xác nhận đặt phòng.</p>
+        <p style="margin-top:12px"><strong>Q: Có thể hủy đặt phòng không?</strong></p>
+        <p style="color:var(--text-muted)">A: Có, hủy miễn phí trước 48 giờ nhận phòng. Sau thời hạn phí hủy 50%.</p>
+        <p style="margin-top:12px"><strong>Q: Thanh toán bằng hình thức nào?</strong></p>
+        <p style="color:var(--text-muted)">A: Chuyển khoản, thẻ tín dụng, ví điện tử (Momo, ZaloPay), hoặc thanh toán tại quầy.</p>
+        <p style="margin-top:12px"><strong>Q: Có đưa đón sân bay không?</strong></p>
+        <p style="color:var(--text-muted)">A: Có, miễn phí cho phòng Suite trở lên. Các loại phòng khác phí 300.000₫/lượt.</p>
+      `},
+      policy: {
+        title: '📋 Chính Sách', body: `
+        <p><strong>Chính sách đặt phòng</strong></p>
+        <p>• Check-in: 14:00 | Check-out: 12:00</p>
+        <p>• Late check-out: Phụ thu 50% giá phòng (tùy tình trạng)</p>
+        <p>• Trẻ em dưới 6 tuổi: Miễn phí (ở chung phòng bố mẹ)</p>
+        <p>• Thú cưng: Không được phép mang theo</p>
+        <p style="margin-top:12px"><strong>Chính sách hủy phòng</strong></p>
+        <p>• Trước 48h: Hoàn tiền 100%</p>
+        <p>• Trước 24h: Hoàn tiền 50%</p>
+        <p>• Dưới 24h: Không hoàn tiền</p>
+      `},
+      terms: {
+        title: '📜 Điều Khoản Sử Dụng', body: `
+        <p><strong>Điều khoản chung</strong></p>
+        <p>• Khách phải từ 18 tuổi trở lên để đặt phòng</p>
+        <p>• Xuất trình CMND/CCCD/Hộ chiếu khi check-in</p>
+        <p>• Không hút thuốc trong phòng (phạt 2.000.000₫)</p>
+        <p>• Giữ gìn trật tự sau 22:00</p>
+        <p>• Chịu trách nhiệm về tài sản hư hỏng trong phòng</p>
+        <p style="margin-top:12px"><strong>Quyền riêng tư</strong></p>
+        <p>• Thông tin cá nhân được bảo mật theo Luật An ninh mạng</p>
+        <p>• Không chia sẻ thông tin cho bên thứ 3 khi chưa đồng ý</p>
+      `}
+    };
+
+    function openServiceModal(key) {
+      const data = serviceData[key];
+      if (!data) return;
+      document.getElementById('serviceModalTitle').textContent = data.title;
+      document.getElementById('serviceModalBody').innerHTML = data.body;
+      document.getElementById('serviceModal').classList.add('active');
+    }
+    function closeServiceModal() {
+      document.getElementById('serviceModal').classList.remove('active');
+    }
+    document.getElementById('serviceModal').addEventListener('click', function (e) {
+      if (e.target === this) closeServiceModal();
+    });
+
+    // ============ CHAT WIDGET (Homepage) ============
+    let userChatOpen = false;
+    let userChatPoll = null;
+
+    function toggleChatWidget() {
+      userChatOpen = !userChatOpen;
+      document.getElementById('chatWidgetPanel').classList.toggle('open', userChatOpen);
+      if (userChatOpen) {
+        loadUserChatMessages();
+        document.getElementById('userChatInput').focus();
+        userChatPoll = setInterval(loadUserChatMessages, 3000);
+      } else {
+        if (userChatPoll) clearInterval(userChatPoll);
+      }
+    }
+
+    async function loadUserChatMessages() {
+      try {
+        const res = await fetch('/api/chat/messages/0');
+        const data = await res.json();
+        if (data.success) {
+          const container = document.getElementById('userChatMessages');
+          if (data.messages.length === 0) { container.innerHTML = '<div class="chat-empty">Gửi tin nhắn để được hỗ trợ!</div>'; return; }
+          container.innerHTML = data.messages.map(m => `
+            <div class="chat-msg ${m.fromRole === 'user' ? 'from-admin' : 'from-user'}">
+              <div>${m.message}</div>
+              <div class="msg-time">${new Date(m.timestamp).toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'})}</div>
+            </div>
+          `).join('');
+          container.scrollTop = container.scrollHeight;
+        }
+      } catch(e) {}
+    }
+
+    async function sendUserChat() {
+      const input = document.getElementById('userChatInput');
+      const message = input.value.trim();
+      if (!message) return;
+      input.value = '';
+      try {
+        await fetch('/api/chat/send', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ message, toUserId: 0 })
+        });
+        loadUserChatMessages();
+      } catch(e) {}
+    }
+  </script>
+</body>
+
+</html>

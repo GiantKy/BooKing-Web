@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - LuxStay</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <a href="/" class="sidebar-brand">LuxStay</a>
+      <div class="sidebar-role">👤 User Dashboard</div>
+      <nav class="sidebar-nav">
+        <a href="#" class="active" onclick="showPanel('overview',this)">📊 Tổng quan</a>
+        <a href="#" onclick="showPanel('rooms',this)">🏨 Đặt phòng</a>
+        <a href="#" onclick="showPanel('bookings',this)">📋 Lịch sử đặt</a>
+      </nav>
+      <div class="sidebar-user">
+        <div class="avatar" id="userAvatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">Loading...</div>
+          <div class="user-email" id="userEmail">...</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+      <div class="main-header">
+        <h1 id="pageTitle">👋 Xin chào!</h1>
+        <button class="btn btn-danger btn-sm" onclick="logout()">🚪 Đăng xuất</button>
+      </div>
+
+      <!-- Overview Panel -->
+      <div class="panel active" id="panelOverview">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(108,92,231,0.15);color:var(--primary-light)">📋</div>
+            <div class="stat-value" id="myTotalBookings">0</div>
+            <div class="stat-label">Tổng đặt phòng</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(253,203,110,0.15);color:var(--gold)">⏳</div>
+            <div class="stat-value" id="myPending">0</div>
+            <div class="stat-label">Chờ xác nhận</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:rgba(0,206,201,0.15);color:var(--secondary)">✅</div>
+            <div class="stat-value" id="myConfirmed">0</div>
+            <div class="stat-label">Đã xác nhận</div>
+          </div>
+        </div>
+        <div class="table-container">
+          <div class="table-header"><h3>Đặt phòng gần đây</h3></div>
+          <table class="data-table">
+            <thead><tr><th>Phòng</th><th>Nhận phòng</th><th>Trả phòng</th><th>Tổng tiền</th><th>Trạng thái</th></tr></thead>
+            <tbody id="recentBookingsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Rooms Panel -->
+      <div class="panel" id="panelRooms">
+        <div class="dash-rooms-grid" id="dashRoomsGrid"></div>
+      </div>
+
+      <!-- Bookings Panel -->
+      <div class="panel" id="panelBookings">
+        <div class="table-container">
+          <div class="table-header"><h3>Tất cả đặt phòng của bạn</h3></div>
+          <table class="data-table">
+            <thead><tr><th>ID</th><th>Phòng</th><th>Nhận phòng</th><th>Trả phòng</th><th>Khách</th><th>Tổng tiền</th><th>Trạng thái</th></tr></thead>
+            <tbody id="allBookingsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- BOOKING MODAL -->
+  <div class="modal-overlay" id="bookingModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>📋 Đặt Phòng</h2>
+        <button class="modal-close" onclick="closeBookingModal()">&times;</button>
+      </div>
+      <div id="bookingAlert" class="alert alert-error"></div>
+      <form id="bookingForm" onsubmit="submitBooking(event)">
+        <input type="hidden" id="bookRoomId">
+        <div class="form-group">
+          <label>Phòng</label>
+          <input type="text" id="bookRoomName" readonly style="opacity:0.7">
+        </div>
+        <div class="form-group">
+          <label>Ngày nhận phòng</label>
+          <input type="date" id="bookCheckIn" required>
+        </div>
+        <div class="form-group">
+          <label>Ngày trả phòng</label>
+          <input type="date" id="bookCheckOut" required>
+        </div>
+        <div class="form-group">
+          <label>Số khách</label>
+          <select id="bookGuests" required>
+            <option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tổng tiền (ước tính)</label>
+          <input type="text" id="bookTotal" readonly style="opacity:0.7;color:var(--gold);font-weight:700;">
+        </div>
+        <button type="submit" class="btn btn-primary">✅ Xác Nhận</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Chat Widget -->
+  <button class="chat-widget-btn" id="chatWidgetBtn" onclick="toggleChatWidget()">💬</button>
+  <div class="chat-widget-panel" id="chatWidgetPanel">
+    <div class="chat-main-header">
+      <span>💬 Chat với Admin</span>
+      <button class="close-chat" onclick="toggleChatWidget()">&times;</button>
+    </div>
+    <div class="chat-messages" id="userChatMessages">
+      <div class="chat-empty">Gửi tin nhắn để được hỗ trợ!</div>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="userChatInput" placeholder="Nhập tin nhắn..." onkeydown="if(event.key==='Enter')sendUserChat()">
+      <button onclick="sendUserChat()">➤</button>
+    </div>
+  </div>
+  <script src="/js/app.js"></script>
+  <script>
+    // Check auth & load data
+    (async function init() {
+      const user = await checkAuth();
+      if (!user || user.role === 'admin') { window.location.href = '/login'; return; }
+      document.getElementById('userName').textContent = user.fullName;
+      document.getElementById('userEmail').textContent = user.username || user.email || '';
+      document.getElementById('userAvatar').textContent = user.fullName.charAt(0).toUpperCase();
+      document.getElementById('pageTitle').textContent = '👋 Xin chào, ' + user.fullName + '!';
+      loadUserDashboard();
+    })();
+
+    async function loadUserDashboard() {
+      // Load bookings
+      try {
+        const res = await fetch('/api/bookings/my');
+        const data = await res.json();
+        if (data.success) {
+          const b = data.bookings;
+          document.getElementById('myTotalBookings').textContent = b.length;
+          document.getElementById('myPending').textContent = b.filter(x => x.status === 'pending').length;
+          document.getElementById('myConfirmed').textContent = b.filter(x => x.status === 'confirmed').length;
+          renderBookingsTable('recentBookingsBody', b.slice(-5).reverse(), false);
+          renderBookingsTable('allBookingsBody', b.reverse(), true);
+        }
+      } catch (e) {}
+      // Load rooms
+      loadDashboardRooms();
+    }
+
+    async function loadDashboardRooms() {
+      try {
+        const res = await fetch('/api/rooms');
+        const data = await res.json();
+        if (data.success) {
+          const grid = document.getElementById('dashRoomsGrid');
+          grid.innerHTML = data.rooms.map(r => `
+            <div class="room-card">
+              <div class="room-card-img">
+                <img src="${r.image}" alt="${r.name}" loading="lazy">
+                <span class="room-type">${r.type}</span>
+              </div>
+              <div class="room-card-body">
+                <h3>${r.name}</h3>
+                <p class="room-desc">${r.description}</p>
+                <div class="room-amenities">${r.amenities.map(a => `<span>${a}</span>`).join('')}</div>
+                <div class="room-card-footer">
+                  <div class="room-price">${formatPrice(r.price)}<small>/đêm</small></div>
+                  <button class="btn btn-primary btn-sm" onclick="openBookingModal(${r.id},'${r.name.replace(/'/g,"\\'")}',${r.price})">Đặt ngay</button>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (e) {}
+    }
+
+    function renderBookingsTable(tbodyId, bookings, showId) {
+      const tbody = document.getElementById(tbodyId);
+      if (bookings.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:40px">Chưa có đặt phòng nào</td></tr>';
+        return;
+      }
+      tbody.innerHTML = bookings.map(b => `<tr>
+        ${showId ? `<td>#${b.id}</td>` : ''}
+        <td>${b.roomName}</td>
+        <td>${b.checkIn}</td>
+        <td>${b.checkOut}</td>
+        ${showId ? `<td>${b.guests}</td>` : ''}
+        <td style="color:var(--gold);font-weight:600">${formatPrice(b.totalPrice)}</td>
+        <td><span class="badge badge-${b.status}">${statusText(b.status)}</span></td>
+      </tr>`).join('');
+    }
+
+    function showPanel(name, el) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+      document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+      if (el) el.classList.add('active');
+    }
+
+    // ============ USER CHAT WIDGET ============
+    let userChatOpen = false;
+    let userChatPoll = null;
+
+    function toggleChatWidget() {
+      userChatOpen = !userChatOpen;
+      document.getElementById('chatWidgetPanel').classList.toggle('open', userChatOpen);
+      if (userChatOpen) {
+        loadUserChatMessages();
+        document.getElementById('userChatInput').focus();
+        userChatPoll = setInterval(loadUserChatMessages, 3000);
+      } else {
+        if (userChatPoll) clearInterval(userChatPoll);
+      }
+    }
+
+    async function loadUserChatMessages() {
+      try {
+        const res = await fetch('/api/chat/messages/0');
+        const data = await res.json();
+        if (data.success) {
+          const container = document.getElementById('userChatMessages');
+          if (data.messages.length === 0) { container.innerHTML = '<div class="chat-empty">Gửi tin nhắn để được hỗ trợ!</div>'; return; }
+          container.innerHTML = data.messages.map(m => `
+            <div class="chat-msg ${m.fromRole === 'user' ? 'from-admin' : 'from-user'}">
+              <div>${m.message}</div>
+              <div class="msg-time">${new Date(m.timestamp).toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'})}</div>
+            </div>
+          `).join('');
+          container.scrollTop = container.scrollHeight;
+        }
+      } catch(e) {}
+    }
+
+    async function sendUserChat() {
+      const input = document.getElementById('userChatInput');
+      const message = input.value.trim();
+      if (!message) return;
+      input.value = '';
+      try {
+        await fetch('/api/chat/send', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ message, toUserId: 0 })
+        });
+        loadUserChatMessages();
+      } catch(e) {}
+    }
+  </script>
+</body>
+</html>
