@@ -9,7 +9,7 @@ const PORT = 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '..', 'web')));
 app.use(session({
   secret: 'booking-web-secret-key-2026',
   resave: false,
@@ -218,11 +218,12 @@ app.get('/api/chat/conversations', (req, res) => {
 });
 
 // ============ PAGES ============
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login-user.html')));
-app.get('/admin/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login-admin.html')));
-app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard-user.html')));
-app.get('/admin/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard-admin.html')));
+const WEB_DIR = path.join(__dirname, '..', 'web');
+app.get('/', (req, res) => res.sendFile(path.join(WEB_DIR, 'index.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(WEB_DIR, 'login-user.html')));
+app.get('/admin/login', (req, res) => res.sendFile(path.join(WEB_DIR, 'login-admin.html')));
+app.get('/dashboard', (req, res) => res.sendFile(path.join(WEB_DIR, 'dashboard-user.html')));
+app.get('/admin/dashboard', (req, res) => res.sendFile(path.join(WEB_DIR, 'dashboard-admin.html')));
 
 app.listen(PORT, () => {
   console.log(`\n🏨 Booking Website is running!`);
